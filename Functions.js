@@ -1,7 +1,6 @@
 // Diese Datei enthält die Logik für die Outlook-Buttons.
 
 // Ihre Power Automate Flow URL
-// WICHTIG: Ersetzen Sie den Platzhalter durch Ihre kopierte URL!
 const flowUrl = "https://defaultacee719ca1b74fd8919a21a0e90caf.d7.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5823c2b964194a7893cfcc925fede8fe/triggers/manual/paths/invoke/?api-version=1&tenantId=tId&environmentName=Default-acee719c-a1b7-4fd8-919a-21a0e90cafd7";
 
 /**
@@ -13,7 +12,8 @@ async function callFlow(action) {
 
     const payload = {
         messageId: Office.context.mailbox.item.itemId,
-        action: action
+        action: action,
+        userEmail: Office.context.mailbox.userProfile.emailAddress 
     };
 
     try {
@@ -27,7 +27,7 @@ async function callFlow(action) {
     }
 }
 
-// Diese Funktionsnamen müssen exakt mit denen in der manifest.xml übereinstimmen
+// Diese Funktionsnamen müssen exakt mit denen in der Automatisierung_Button_Outlook_GWKOM.xml übereinstimmen
 function createTicket(event) {
     callFlow("create");
     event.completed(); // Signal an Outlook, dass die Aktion beendet ist.

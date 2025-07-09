@@ -15,7 +15,8 @@ async function callFlow(action) {
 
     const payload = {
         messageId: Office.context.mailbox.item.itemId,
-        action: action
+        action: action,
+        userEmail: Office.context.mailbox.userProfile.emailAddress 
     };
 
     try {
