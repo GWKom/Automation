@@ -1,20 +1,20 @@
 // Diese Datei enthält die Logik für das Outlook Web-Panel.
 
+// Proxy-URL via Google Apps Script
 const flowUrl = "https://script.google.com/macros/s/AKfycbxvwK283FepZ55cC3A5OFOs-7Os7PC4Bq9EvYlIT2pvD3u4gsnYChOBKXwdgo-z3Z0X/exec";
 
 /**
- * Ruft den Flow auf und zeigt Rückmeldung im Web-Panel.
+ * Aufruf des Proxys und Rückmeldung im Panel.
  */
 async function callFlow(action) {
     const statusElement = document.getElementById("status-message");
 
     if (!Office.context.mailbox.item) {
-        statusElement.innerText = "Fehler: Bitte wählen Sie eine E-Mail aus.";
-        statusElement.style.color = "red";
+        statusElement.innerText = "Fehler: Keine E-Mail ausgewählt.";
         return;
     }
 
-    statusElement.innerText = `Die Anforderung '${action}' wurde gestartet... (Dauer ca. 25 Sekunden)`;
+    statusElement.innerText = `Die Anforderung '${action}' wurde erfolgreich gestartet...(Dauer ca. 25 Sekunden)`;
     statusElement.style.color = "blue";
 
     const payload = {
@@ -28,9 +28,11 @@ async function callFlow(action) {
         await fetch(flowUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            mode: 'no-cors',
             body: JSON.stringify(payload)
         });
 
+        // Auch ohne status-Auswertung Erfolg anzeigen
         statusElement.innerText = `Die Anforderung '${action}' wurde erfolgreich übermittelt.`;
         statusElement.style.color = "green";
 
@@ -41,7 +43,7 @@ async function callFlow(action) {
     }
 }
 
-// Klick-Events registrieren
+// Knöpfe registrieren
 Office.onReady(() => {
     document.getElementById("btnCreate").onclick = () => callFlow("create");
     document.getElementById("btnUpdate").onclick = () => callFlow("update");

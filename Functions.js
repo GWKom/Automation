@@ -1,5 +1,6 @@
 // Diese Datei enthält die Logik für die Outlook-Buttons.
 
+// Globale Definition der Proxy-URL
 const flowUrl = "https://script.google.com/macros/s/AKfycbxvwK283FepZ55cC3A5OFOs-7Os7PC4Bq9EvYlIT2pvD3u4gsnYChOBKXwdgo-z3Z0X/exec";
 
 /**
@@ -25,13 +26,14 @@ async function callFlow(action, event) {
         await fetch(flowUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            mode: 'no-cors',
             body: JSON.stringify(payload)
         });
 
-        // Visuelles Feedback im Outlook-Fenster
-        Office.context.mailbox.item.notificationMessages.addAsync(action + "_started", {
+        // Hinweis im Outlook-Fenster
+        Office.context.mailbox.item.notificationMessages.addAsync(action + "_success", {
             type: "informational",
-            message: `Die Anforderung '${action}' wurde erfolgreich gestartet... (Dauer ca. 25 Sekunden)`,
+            message: `Die Anforderung '${action}' wurde erfolgreich gestartet...(Dauer ca. 25 Sekunden)`,
             icon: "icon16",
             persistent: true
         });
@@ -45,15 +47,21 @@ async function callFlow(action, event) {
         });
     }
 
-    event.completed(); // Wichtig!
+    event.completed();
 }
 
-// Handler-Funktionen
-function createTicket(event) { callFlow("create", event); }
-function updateTicket(event) { callFlow("update", event); }
-function closeTicket(event) { callFlow("close", event); }
+// Klare Zuweisung für Outlook-Aktionen
+function createTicket(event) {
+    callFlow("create", event);
+}
+function updateTicket(event) {
+    callFlow("update", event);
+}
+function closeTicket(event) {
+    callFlow("close", event);
+}
 
-// Outlook-Registrierung
+// Registriere die Aktionen
 Office.onReady(() => {
     Office.actions.associate("createTicket", createTicket);
     Office.actions.associate("updateTicket", updateTicket);
