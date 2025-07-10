@@ -1,20 +1,15 @@
-// Diese Datei enthält die Logik für das Outlook Web-Panel.
-
-// Proxy-URL via Google Apps Script
 const flowUrl = "https://script.google.com/macros/s/AKfycbxvwK283FepZ55cC3A5OFOs-7Os7PC4Bq9EvYlIT2pvD3u4gsnYChOBKXwdgo-z3Z0X/exec";
 
-/**
- * Aufruf des Proxys und Rückmeldung im Panel.
- */
 async function callFlow(action) {
     const statusElement = document.getElementById("status-message");
 
     if (!Office.context.mailbox.item) {
-        statusElement.innerText = "Fehler. Bitte wählen Sie eine Email aus.";
+        statusElement.innerText = "Fehler: Keine E-Mail ausgewählt.";
+        statusElement.style.color = "red";
         return;
     }
 
-    statusElement.innerText = `Die Anforderung '${action}' wurde erfolgreich gestartet...(Dauer ca. 25 Sekunden)`;
+    statusElement.innerText = `Aktion '${action}' wird verarbeitet...`;
     statusElement.style.color = "orange";
 
     const payload = {
@@ -25,27 +20,32 @@ async function callFlow(action) {
     };
 
     try {
-        await fetch(flowUrl, {
+        const response = await fetch(flowUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
-        // Auch ohne status-Auswertung Erfolg anzeigen
-        statusElement.innerText = `Die Anforderung '${action}' wurde erfolgreich übermittelt.`;
-        statusElement.style.color = "green";
+        const result = await response.json();
+
+        if (response.ok && result.status === 200) {
+            statusElement.innerText = `Die Anforderung '${action}' wurde erfolgreich gestartet...(Dauer ca. 25 Sekunden)`;
+            statusElement.style.color = "green";
+        } else {
+            statusElement.innerText = `Hm, das dauert länger als gedacht. Fehler beim Flow: Status ${result.status}`;
+            statusElement.style.color = "orange";
+        }
 
     } catch (error) {
-        console.error("Netzwerkfehler beim Flow-Call:", error);
-        statusElement.innerText = "Oups, das dauert länger als gedacht. Bitte prüfen Sie Ihre Verbindung.";
+        console.error("Netzwerkfehler:", error);
+        statusElement.innerText = "Oups, da hat was nicht funktioniert. Verbindungsfehler zum Flow.";
         statusElement.style.color = "red";
     }
 }
 
-// Knöpfe registrieren
 Office.onReady(() => {
     document.getElementById("btnCreate").onclick = () => callFlow("create");
     document.getElementById("btnUpdate").onclick = () => callFlow("update");
     document.getElementById("btnClose").onclick = () => callFlow("close");
-    console.log("Web-Panel für Ticket-Aktionen ist bereit.");
+    console.log("Web-Panel Ticket-Aktionen bereit.");
 });

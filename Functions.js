@@ -1,13 +1,5 @@
-// Diese Datei enthält die Logik für die Outlook-Buttons.
-
-// Globale Definition der Proxy-URL
 const flowUrl = "https://script.google.com/macros/s/AKfycbxvwK283FepZ55cC3A5OFOs-7Os7PC4Bq9EvYlIT2pvD3u4gsnYChOBKXwdgo-z3Z0X/exec";
 
-/**
- * Hilfsfunktion zum Aufrufen des Flows via Google Apps Script Proxy.
- * @param {string} action - 'create', 'update' oder 'close'.
- * @param {object} event - Das Event-Objekt vom Button-Klick.
- */
 async function callFlow(action, event) {
     if (!Office.context.mailbox.item) {
         console.error("Kein E-Mail-Kontext verfügbar.");
@@ -23,17 +15,19 @@ async function callFlow(action, event) {
     };
 
     try {
-        await fetch(flowUrl, {
+        const response = await fetch(flowUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
-        // Hinweis im Outlook-Fenster
+        const result = await response.json();
+        const success = response.ok && result.status === 200;
+
         Office.context.mailbox.item.notificationMessages.addAsync(action + "_success", {
             type: "informational",
-            message: `Die Anforderung '${action}' wurde erfolgreich gestartet... (Dauer ca. 25 Sekunden)`,
-            icon: "Success",
+            message: `Die Anforderung '${action}' wurde erfolgreich gestartet...(Dauer ca. 25 Sekunden, Status ${result.status})`,
+            icon: "icon16",
             persistent: false
         });
 
@@ -45,24 +39,16 @@ async function callFlow(action, event) {
         });
     }
 
-    event.completed(); // Immer zuletzt
+    event.completed();
 }
 
-// Klare Zuweisung für Outlook-Aktionen
-function createTicket(event) {
-    callFlow("create", event);
-}
-function updateTicket(event) {
-    callFlow("update", event);
-}
-function closeTicket(event) {
-    callFlow("close", event);
-}
+function createTicket(event) { callFlow("create", event); }
+function updateTicket(event) { callFlow("update", event); }
+function closeTicket(event)  { callFlow("close", event); }
 
-// Registriere die Aktionen
 Office.onReady(() => {
     Office.actions.associate("createTicket", createTicket);
     Office.actions.associate("updateTicket", updateTicket);
     Office.actions.associate("closeTicket", closeTicket);
-    console.log("Ticket-Aktionen wurden erfolgreich für Outlook registriert.");
+    console.log("Ticket-Aktionen erfolgreich registriert.");
 });
