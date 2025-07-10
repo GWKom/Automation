@@ -1,0 +1,28 @@
+const FLOW_URL = 'https://defaultacee719ca1b74fd8919a21a0e90caf.d7.environment.api.powerplatform.com/powerautomate/automations/direct/workflows/5823c2b964194a7893cfcc925fede8fe/triggers/manual/paths/invoke/?api-version=1&tenantId=acee719c-a1b7-4fd8-919a-21a0e90cafd7&environmentName=Default-acee719c-a1b7-4fd8-919a-21a0e90cafd7&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PHsGWrYrjRFivkmE3u8mIAtlZqDNEPXP1FUGCHmsfYE';
+
+function doPost(e) {
+  try {
+    const payload = JSON.parse(e.postData.contents);
+    const options = {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    };
+
+    const response = UrlFetchApp.fetch(FLOW_URL, options);
+    const code = response.getResponseCode();
+    const content = response.getContentText();
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: code,
+      response: content
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 500,
+      error: err.message
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
