@@ -1,11 +1,10 @@
 // Diese Datei enthält die Logik für das Outlook Web-Panel.
 
-// Globale Definition der Flow-URL
+// Proxy-URL via Google Apps Script
 const flowUrl = "https://script.google.com/macros/s/AKfycbxvwK283FepZ55cC3A5OFOs-7Os7PC4Bq9EvYlIT2pvD3u4gsnYChOBKXwdgo-z3Z0X/exec";
 
 /**
- * Hilfsfunktion zum Aufrufen des Power Automate Flows
- * und zur Anzeige einer Rückmeldung im Panel.
+ * Aufruf des Proxys und Rückmeldung im Panel.
  */
 async function callFlow(action) {
     const statusElement = document.getElementById("status-message");
@@ -14,8 +13,7 @@ async function callFlow(action) {
         statusElement.innerText = "Fehler: Keine E-Mail ausgewählt.";
         return;
     }
-    
-    // Status-Meldung anzeigen, dass die Aktion läuft
+
     statusElement.innerText = `Aktion '${action}' wird ausgeführt...`;
     statusElement.style.color = "orange";
 
@@ -27,19 +25,16 @@ async function callFlow(action) {
     };
 
     try {
-        const response = await fetch(flowUrl, {
+        await fetch(flowUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            mode: 'no-cors',
             body: JSON.stringify(payload)
         });
 
-        if (response.status === 202) {
-            statusElement.innerText = `Aktion '${action}' wurde erfolgreich ausgelöst!`;
-            statusElement.style.color = "green";
-        } else {
-            statusElement.innerText = `Fehler beim Auslösen. Status: ${response.status}`;
-            statusElement.style.color = "red";
-        }
+        // Auch ohne status-Auswertung Erfolg anzeigen
+        statusElement.innerText = `Aktion '${action}' wurde übermittelt!`;
+        statusElement.style.color = "green";
 
     } catch (error) {
         console.error("Netzwerkfehler beim Flow-Call:", error);
@@ -48,8 +43,7 @@ async function callFlow(action) {
     }
 }
 
-// Office.onReady stellt sicher, dass alles geladen ist, bevor wir
-// die Klick-Events an unsere HTML-Buttons binden.
+// Knöpfe registrieren
 Office.onReady(() => {
     document.getElementById("btnCreate").onclick = () => callFlow("create");
     document.getElementById("btnUpdate").onclick = () => callFlow("update");

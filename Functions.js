@@ -1,16 +1,17 @@
 // Diese Datei enthält die Logik für die Outlook-Buttons.
 
-// Globale Definition der Flow-URL für einfache Wartung.
+// Globale Definition der Proxy-URL
 const flowUrl = "https://script.google.com/macros/s/AKfycbxvwK283FepZ55cC3A5OFOs-7Os7PC4Bq9EvYlIT2pvD3u4gsnYChOBKXwdgo-z3Z0X/exec";
 
 /**
- * Hilfsfunktion zum Aufrufen des Power Automate Flows
- * und zur Anzeige einer Erfolgsmeldung in Outlook.
- * @param {string} action - Die auszuführende Aktion ('create', 'update', 'close').
+ * Hilfsfunktion zum Aufrufen des Flows via Google Apps Script Proxy.
+ * @param {string} action - 'create', 'update' oder 'close'.
+ * @param {object} event - Das Event-Objekt vom Button-Klick.
  */
-async function callFlow(action) {
+async function callFlow(action, event) {
     if (!Office.context.mailbox.item) {
         console.error("Kein E-Mail-Kontext verfügbar.");
+        event.completed();
         return;
     }
 
@@ -22,26 +23,20 @@ async function callFlow(action) {
     };
 
     try {
-        const response = await fetch(flowUrl, {
+        await fetch(flowUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            mode: 'no-cors',
             body: JSON.stringify(payload)
         });
 
-        // NEU: Erfolgs- oder Fehlermeldung für den Benutzer anzeigen
-        if (response.status === 202) { // 202 Accepted ist der Erfolgscode von Power Automate
-            Office.context.mailbox.item.notificationMessages.addAsync(action + "_success", {
-                type: "informational",
-                message: `Aktion '${action}' wurde erfolgreich ausgelöst.`,
-                icon: "icon16.create", // Sie können hier auch spezifische Icons definieren
-                persistent: false
-            });
-        } else {
-            Office.context.mailbox.item.notificationMessages.addAsync("flow_error", {
-                type: "errorMessage",
-                message: `Fehler beim Auslösen des Flows. Status: ${response.status}`
-            });
-        }
+        // Hinweis im Outlook-Fenster
+        Office.context.mailbox.item.notificationMessages.addAsync(action + "_success", {
+            type: "informational",
+            message: `GW Kom Ticket-Automatisierung bearbeitet Ihre ${action}-Anforderung.`,
+            icon: "icon16.create",
+            persistent: false
+        });
 
     } catch (error) {
         console.error("Netzwerkfehler beim Flow-Call:", error);
@@ -50,25 +45,22 @@ async function callFlow(action) {
             message: "Netzwerkfehler. Bitte prüfen Sie Ihre Verbindung."
         });
     }
+
+    event.completed(); // Immer zuletzt
 }
 
-// Action-Handler-Funktionen, klar definiert für bessere Lesbarkeit
+// Klare Zuweisung für Outlook-Aktionen
 function createTicket(event) {
-  callFlow("create");
-  event.completed(); // Wichtig: Signal an Outlook, dass die Aktion beendet ist.
+    callFlow("create", event);
 }
-
 function updateTicket(event) {
-  callFlow("update");
-  event.completed();
+    callFlow("update", event);
 }
-
 function closeTicket(event) {
-  callFlow("close");
-  event.completed();
+    callFlow("close", event);
 }
 
-// Office.onReady registriert die Funktionen, wenn Outlook bereit ist.
+// Registriere die Aktionen
 Office.onReady(() => {
     Office.actions.associate("createTicket", createTicket);
     Office.actions.associate("updateTicket", updateTicket);
