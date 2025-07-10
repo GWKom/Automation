@@ -42,7 +42,7 @@ async function callFlow(action, event) {
         console.error("Netzwerkfehler beim Flow-Call:", error);
         Office.context.mailbox.item.notificationMessages.addAsync("network_error", {
             type: "errorMessage",
-            message: "Oups, da ist etwas schief gelaufen. Bitte prüfen Sie Ihre Verbindung."
+            message: "Oups, das dauert länger als gedacht. Bitte prüfen Sie Ihre Verbindung."
         });
     }
 

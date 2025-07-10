@@ -38,7 +38,7 @@ async function callFlow(action) {
 
     } catch (error) {
         console.error("Netzwerkfehler beim Flow-Call:", error);
-        statusElement.innerText = "Oups, da ist etwas schief gelaufen. Bitte prüfen Sie Ihre Verbindung.";
+        statusElement.innerText = "Oups, das dauert länger als gedacht. Bitte prüfen Sie Ihre Verbindung.";
         statusElement.style.color = "red";
     }
 }
