@@ -1,7 +1,7 @@
 // Diese Datei enthält die Logik für das Outlook Web-Panel.
 
 // Globale Definition der Flow-URL
-const flowUrl = "https://defaultacee719ca1b74fd8919a21a0e90caf.d7.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5823c2b964194a7893cfcc925fede8fe/triggers/manual/paths/invoke/?api-version=1&tenantId=tId&environmentName=Default-acee719c-a1b7-4fd8-919a-21a0e90cafd7";
+const flowUrl = "https://defaultacee719ca1b74fd8919a21a0e90caf.d7.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5823c2b964194a7893cfcc925fede8fe/triggers/manual/paths/invoke/?api-version=1&tenantId=tId&environmentName=Default-acee719c-a1b7-4fd8-919a-21a0e90cafd7&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=PHsGWrYrjRFivkmE3u8mIAtlZqDNEPXP1FUGCHmsfYE";
 
 /**
  * Hilfsfunktion zum Aufrufen des Power Automate Flows
