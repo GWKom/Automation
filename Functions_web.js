@@ -28,7 +28,6 @@ async function callFlow(action) {
         await fetch(flowUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            mode: 'no-cors',
             body: JSON.stringify(payload)
         });
 
