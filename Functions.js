@@ -26,15 +26,14 @@ async function callFlow(action, event) {
         await fetch(flowUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            mode: 'no-cors',
             body: JSON.stringify(payload)
         });
 
         // Hinweis im Outlook-Fenster
         Office.context.mailbox.item.notificationMessages.addAsync(action + "_success", {
             type: "informational",
-            message: `GW Kom Ticket-Automatisierung bearbeitet Ihre ${action}-Anforderung.`,
-            icon: "icon16.create",
+            message: `Die Anforderung '${action}' wurde erfolgreich gestartet... (Dauer ca. 25 Sekunden)`,
+            icon: "Success",
             persistent: false
         });
 
@@ -42,7 +41,7 @@ async function callFlow(action, event) {
         console.error("Netzwerkfehler beim Flow-Call:", error);
         Office.context.mailbox.item.notificationMessages.addAsync("network_error", {
             type: "errorMessage",
-            message: "Netzwerkfehler. Bitte prüfen Sie Ihre Verbindung."
+            message: "Oups, da ist etwas schief gelaufen. Bitte prüfen Sie Ihre Verbindung."
         });
     }
 
