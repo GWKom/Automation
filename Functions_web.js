@@ -45,8 +45,8 @@ async function callFlow(action) {
 
 // Knöpfe registrieren
 Office.onReady(() => {
-    document.getElementById("btnCreate").onclick = () => callFlow("create");
-    document.getElementById("btnUpdate").onclick = () => callFlow("update");
-    document.getElementById("btnClose").onclick = () => callFlow("close");
+    document.getElementById("btnCreate").addEventListener("click", () => callFlow("create"));
+    document.getElementById("btnUpdate").addEventListener("click", () => callFlow("update"));
+    document.getElementById("btnClose").addEventListener("click", () => callFlow("close"));
     console.log("Web-Panel für Ticket-Aktionen ist bereit.");
 });
