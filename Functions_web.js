@@ -1,31 +1,27 @@
-// Diese Datei enthält die Logik für das Outlook Web-Panel.
-
-// Globale Definition der Proxy-URL
 const flowUrl = "https://script.google.com/macros/s/AKfycbxvwK283FepZ55cC3A5OFOs-7Os7PC4Bq9EvYlIT2pvD3u4gsnYChOBKXwdgo-z3Z0X/exec";
 
-/**
- * Dies ist die Haupt-Initialisierungsfunktion.
- * Office.js ruft diese Funktion automatisch auf, wenn die Bibliothek vollständig geladen ist.
- */
-Office.initialize = function (reason) {
-    // Stellt sicher, dass das HTML-Dokument auch bereit ist, bevor wir die Buttons verknüpfen.
-    document.addEventListener("DOMContentLoaded", function() {
-        document.getElementById("btnCreate").addEventListener("click", () => callFlow("create"));
-        document.getElementById("btnUpdate").addEventListener("click", () => callFlow("update"));
-        document.getElementById("btnClose").addEventListener("click", () => callFlow("close"));
-        console.log("Web-Panel für Ticket-Aktionen ist bereit und die Buttons sind verknüpft.");
-    });
-};
+function setupButtons() {
+    const createBtn = document.getElementById("btnCreate");
+    const updateBtn = document.getElementById("btnUpdate");
+    const closeBtn = document.getElementById("btnClose");
 
-/**
- * Ruft den Proxy auf und gibt Rückmeldung im Panel.
- */
+    if (createBtn && updateBtn && closeBtn) {
+        createBtn.onclick = () => callFlow("create");
+        updateBtn.onclick = () => callFlow("update");
+        closeBtn.onclick = () => callFlow("close");
+
+        console.log("✅ Buttons erfolgreich registriert.");
+    } else {
+        console.warn("⚠️ Buttons noch nicht verfügbar – retry in 500ms...");
+        setTimeout(setupButtons, 500);
+    }
+}
+
 async function callFlow(action) {
     const statusElement = document.getElementById("status-message");
 
     if (!Office.context.mailbox.item) {
         statusElement.innerText = "Fehler: Keine E-Mail ausgewählt.";
-        statusElement.style.color = "red";
         return;
     }
 
@@ -40,25 +36,32 @@ async function callFlow(action) {
     };
 
     try {
-        const response = await fetch(flowUrl, {
+        await fetch(flowUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             mode: 'no-cors',
             body: JSON.stringify(payload)
         });
 
-
-        if (response.ok) {
-            statusElement.innerText = `Die Anforderung '${action}' wurde erfolgreich übermittelt!`;
-            statusElement.style.color = "green";
-        } else {
-            statusElement.innerText = `Fehler bei der Übermittlung. Status: ${response.status}`;
-            statusElement.style.color = "red";
-        }
+        statusElement.innerText = `Die Anforderung '${action}' wurde erfolgreich übermittelt.`;
+        statusElement.style.color = "green";
 
     } catch (error) {
         console.error("Netzwerkfehler beim Flow-Call:", error);
-        statusElement.innerText = "Ihre Anforderung wird gerade verarbeitet... (ca. 25 Sek.)";
+        statusElement.innerText = "Ihre Anforderung wird gerade verarbeitet... (ca. 25 Sek.).";
         statusElement.style.color = "gray";
     }
+}
+
+// Office.js Initialisierung
+if (typeof Office !== "undefined") {
+    Office.onReady(info => {
+        if (info.host === Office.HostType.Outlook) {
+            console.log("📬 Office.js ist bereit.");
+            setupButtons();
+        }
+    });
+} else {
+    console.warn("⚠️ Office.js nicht gefunden – fallback auf DOMContentLoaded.");
+    document.addEventListener("DOMContentLoaded", setupButtons);
 }
