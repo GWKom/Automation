@@ -25,7 +25,7 @@ async function callFlow(action) {
         return;
     }
 
-    statusElement.innerText = `Die Anforderung '${action}' wurde erfolgreich gestartet...(Dauer ca. 25 Sekunden)`;
+    statusElement.innerText = `Die Anforderung '${action}' wurde erfolgreich gestartet...`;
     statusElement.style.color = "blue";
 
     const payload = {
@@ -43,12 +43,12 @@ async function callFlow(action) {
             body: JSON.stringify(payload)
         });
 
-        statusElement.innerText = `Die Anforderung '${action}' wurde erfolgreich übermittelt.`;
+        statusElement.innerText = `'${action}' wurde erfolgreich an die Ticket-App übermittelt (Fertig in ca. 25 Sek.).`;
         statusElement.style.color = "green";
 
     } catch (error) {
         console.error("Netzwerkfehler beim Flow-Call:", error);
-        statusElement.innerText = "Ihre Anforderung wird gerade verarbeitet... (ca. 25 Sek.).";
+        statusElement.innerText = "Ihre Anforderung wird gerade verarbeitet...";
         statusElement.style.color = "gray";
     }
 }
