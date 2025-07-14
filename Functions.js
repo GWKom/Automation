@@ -1,6 +1,5 @@
 // Diese Datei enthält die Logik für die Outlook-Buttons.
 
-// Globale Definition der Proxy-URL
 const flowUrl = "https://script.google.com/macros/s/AKfycbxvwK283FepZ55cC3A5OFOs-7Os7PC4Bq9EvYlIT2pvD3u4gsnYChOBKXwdgo-z3Z0X/exec";
 
 /**
@@ -10,7 +9,7 @@ const flowUrl = "https://script.google.com/macros/s/AKfycbxvwK283FepZ55cC3A5OFOs
  */
 async function callFlow(action, event) {
     if (!Office.context.mailbox.item) {
-        console.error("Kein E-Mail-Kontext verfügbar.");
+        console.error("❌ Fehler: Keine E-Mail ausgewählt.");
         event.completed();
         return;
     }
@@ -23,6 +22,17 @@ async function callFlow(action, event) {
     };
 
     try {
+        if (!navigator.onLine) {
+            Office.context.mailbox.item.notificationMessages.addAsync("offline_error", {
+                type: "errorMessage",
+                message: "Offline: Bitte stellen Sie eine stabile Internetverbindung her und versuchen Sie es erneut.",
+                persistent: true
+            });
+            console.warn(`⚠️ Offline erkannt – '${action}' nicht gesendet.`);
+            event.completed();
+            return;
+        }
+
         await fetch(flowUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -30,7 +40,6 @@ async function callFlow(action, event) {
             body: JSON.stringify(payload)
         });
 
-        // Hinweis im Outlook-Fenster
         Office.context.mailbox.item.notificationMessages.addAsync(action + "_success", {
             type: "informational",
             message: `Die Anforderung '${action}' wurde erfolgreich gestartet...(Dauer ca. 25 Sekunden)`,
@@ -38,11 +47,13 @@ async function callFlow(action, event) {
             persistent: true
         });
 
+        console.log(`✅ Flow '${action}' erfolgreich gestartet (Dropdown).`);
+
     } catch (error) {
-        console.error("Netzwerkfehler beim Flow-Call:", error);
+        console.error("❌ Netzwerkfehler beim Flow-Call:", error);
         Office.context.mailbox.item.notificationMessages.addAsync("network_error", {
-            type: "informational",
-            message: "Ihre Anforderung wird gerade verarbeitet... (ca. 25 Sek.)",
+            type: "errorMessage",
+            message: "Verbindungsfehler: Sie scheinen keine stabile Verbindung zum Internet oder zum Service von MS Power Automate zu haben.",
             persistent: true
         });
     }
@@ -66,5 +77,5 @@ Office.onReady(() => {
     Office.actions.associate("createTicket", createTicket);
     Office.actions.associate("updateTicket", updateTicket);
     Office.actions.associate("closeTicket", closeTicket);
-    console.log("Ticket-Aktionen wurden erfolgreich für Outlook registriert.");
+    console.log("✅ Ticket-Aktionen wurden erfolgreich für Outlook registriert.");
 });
