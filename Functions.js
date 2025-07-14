@@ -18,7 +18,6 @@ async function callFlow(action, event) {
     Office.context.mailbox.item.notificationMessages.addAsync("ticket_status", {
         type: "informational",
         message: `Die Anforderung '${action}' wurde für eine Verarbeitung an die GW Kom Ticket-App geschickt.`,
-        icon: "Success", 
         persistent: true
     });
 
@@ -51,7 +50,6 @@ async function callFlow(action, event) {
         Office.context.mailbox.item.notificationMessages.replaceAsync("ticket_status", {
                 type: "informational",
                 message: `Ihre Anforderung '${action}' wurde erfolgreich an die Ticket-App übermittelt (ca. 25 Sek.).`,
-                icon: "Success",
                 persistent: true
         }, result => {
                 if (result.status === Office.AsyncResultStatus.Succeeded) {
