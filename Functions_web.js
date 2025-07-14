@@ -10,7 +10,7 @@ function setupButtons() {
         updateBtn.onclick = () => callFlow("update");
         closeBtn.onclick = () => callFlow("close");
 
-        console.log("✅ Buttons erfolgreich registriert.");
+        console.log("✅ Webpanel-Buttons erfolgreich registriert.");
     } else {
         console.warn("⚠️ Buttons noch nicht verfügbar – retry in 500ms...");
         setTimeout(setupButtons, 500);
@@ -21,7 +21,15 @@ async function callFlow(action) {
     const statusElement = document.getElementById("status-message");
 
     if (!Office.context.mailbox.item) {
-        statusElement.innerText = "Fehler: Keine E-Mail ausgewählt.";
+        statusElement.innerText = "❌ Fehler: Keine E-Mail ausgewählt.";
+        console.error("❌ Kein E-Mail-Kontext vorhanden.");
+        return;
+    }
+
+    if (!navigator.onLine) {
+        statusElement.innerText = "Offline: Bitte stellen Sie eine stabile Internetverbindung her und versuchen Sie es erneut.";
+        statusElement.style.color = "red";
+        console.warn(`⚠️ Offline erkannt – '${action}' nicht gesendet.`);
         return;
     }
 
@@ -45,11 +53,12 @@ async function callFlow(action) {
 
         statusElement.innerText = `Ihre Anforderung '${action}'-Ticket wurde erfolgreich an die Ticket-App übermittelt (Info kommt in ca. 25 Sek.).`;
         statusElement.style.color = "green";
+        console.log(`✅ Flow '${action}' erfolgreich gestartet (Webpanel).`);
 
     } catch (error) {
-        console.error("Netzwerkfehler beim Flow-Call:", error);
-        statusElement.innerText = "Ihre Anforderung wird gerade verarbeitet...";
-        statusElement.style.color = "gray";
+        console.error("❌ Netzwerkfehler beim Flow-Call:", error);
+        statusElement.innerText = "Verbindungsfehler: Sie scheinen keine stabile Verbindung zum Internet oder zum Service von MS Power Automate zu haben.";
+        statusElement.style.color = "red";
     }
 }
 
