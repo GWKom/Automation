@@ -18,7 +18,6 @@ async function callFlow(action, event) {
     Office.context.mailbox.item.notificationMessages.addAsync("ticket_status", {
         type: "informational",
         message: `Die Anforderung '${action}' wurde für eine Verarbeitung an die GW Kom Ticket-App geschickt.`,
-        persistent: true
     });
 
     const payload = {
@@ -33,7 +32,6 @@ async function callFlow(action, event) {
             Office.context.mailbox.item.notificationMessages.replaceAsync("ticket_status", {
                 type: "errorMessage",
                 message: "Offline: Bitte stellen Sie eine stabile Internetverbindung her und versuchen Sie es erneut.",
-                persistent: true
             });
             console.warn(`⚠️ Offline erkannt – '${action}' nicht gesendet.`);
             event.completed();
@@ -50,7 +48,6 @@ async function callFlow(action, event) {
         Office.context.mailbox.item.notificationMessages.replaceAsync("ticket_status", {
                 type: "informational",
                 message: `Ihre Anforderung '${action}' wurde erfolgreich an die Ticket-App übermittelt (ca. 25 Sek.).`,
-                persistent: true
         }, result => {
                 if (result.status === Office.AsyncResultStatus.Succeeded) {
                     console.log(`✅ Banner ersetzt für Aktion '${action}'.`);
@@ -66,7 +63,6 @@ async function callFlow(action, event) {
         Office.context.mailbox.item.notificationMessages.replaceAsync("ticket_status", {
             type: "errorMessage",
             message: "Verbindungsfehler: Sie scheinen keine stabile Verbindung zum Internet oder zum Service von MS Power Automate zu haben.",
-            persistent: true
         });
     }
 
