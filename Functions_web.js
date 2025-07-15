@@ -27,13 +27,13 @@ async function callFlow(action) {
     }
 
     if (!navigator.onLine) {
-        statusElement.innerText = "Offline: Bitte stellen Sie eine stabile Internetverbindung her und versuchen Sie es erneut.";
+        statusElement.innerText = "❌ Offline: Bitte stellen Sie eine stabile Internetverbindung her und versuchen Sie es erneut.";
         statusElement.style.color = "red";
-        console.warn(`⚠️ Offline erkannt – '${action}' nicht gesendet.`);
+        console.warn(`❌ Offline erkannt – '${action}' nicht gesendet.`);
         return;
     }
 
-    statusElement.innerText = `Ihre Anforderung '${action}' wurde erfolgreich gestartet...`;
+    statusElement.innerText = `⏳ Ihre Anforderung '${action}' wurde erfolgreich gestartet...`;
     statusElement.style.color = "blue";
 
     const payload = {
@@ -51,7 +51,7 @@ async function callFlow(action) {
             body: JSON.stringify(payload)
         });
 
-        statusElement.innerText = `Ihre Anforderung '${action}'-Ticket wurde erfolgreich an die Ticket-App übermittelt (Info kommt in ca. 25 Sek.).`;
+        statusElement.innerText = `✅ Ihre Anforderung '${action}'-Ticket wurde erfolgreich an die Ticket-App übermittelt (Info kommt in ca. 25 Sek.).`;
         statusElement.style.color = "green";
         console.log(`✅ Flow '${action}' erfolgreich gestartet (Webpanel).`);
 

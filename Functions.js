@@ -9,7 +9,7 @@ const flowUrl = "https://script.google.com/macros/s/AKfycbxvwK283FepZ55cC3A5OFOs
  */
 async function callFlow(action, event) {
     if (!Office.context.mailbox.item) {
-        console.error("❌ Fehler: Keine E-Mail ausgewählt.");
+        console.error("⚠️ Fehler: Keine E-Mail ausgewählt.");
         event.completed();
         return;
     }
@@ -25,7 +25,7 @@ async function callFlow(action, event) {
         if (!navigator.onLine) {
             Office.context.mailbox.item.notificationMessages.addAsync("offline_error", {
                 type: "errorMessage",
-                message: "Offline: Bitte stellen Sie eine stabile Internetverbindung her und versuchen Sie es erneut.",
+                message: "❌ Offline: Bitte stellen Sie eine stabile Internetverbindung her und versuchen Sie es erneut.",
                 persistent: true
             });
             console.warn(`⚠️ Offline erkannt – '${action}' nicht gesendet.`);
@@ -42,8 +42,7 @@ async function callFlow(action, event) {
 
         Office.context.mailbox.item.notificationMessages.addAsync(action + "_success", {
             type: "informational",
-            message: `Die Anforderung '${action}' wurde erfolgreich gestartet...(Dauer ca. 25 Sekunden)`,
-            icon: "icon16",
+            message: `⏳ Die Anforderung '${action}' wurde erfolgreich gestartet...(Info kommt in ca. 25 Sek.)`,
             persistent: true
         });
 
@@ -53,7 +52,7 @@ async function callFlow(action, event) {
         console.error("❌ Netzwerkfehler beim Flow-Call:", error);
         Office.context.mailbox.item.notificationMessages.addAsync("network_error", {
             type: "errorMessage",
-            message: "Verbindungsfehler: Sie scheinen keine stabile Verbindung zum Internet oder zum Service von MS Power Automate zu haben.",
+            message: "⚡️ Verbindungsfehler: Sie scheinen keine stabile Verbindung zum Internet oder zum Service von MS Power Automate zu haben.",
             persistent: true
         });
     }
